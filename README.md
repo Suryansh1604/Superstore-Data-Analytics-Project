@@ -80,6 +80,82 @@ Created new, actionable features that enabled a detailed analysis of sales trend
 Identified that the West and East regions are the top contributors to sales, while the South region has the lowest profit margin. Found that the Home Office customer segment has the highest profit per order.
 
 ---
+## Examples SQL Queries 
+**1.Category Sales Performance**
+
+```sql
+Select Category, sum(Sales) as Sales
+From superstoresales
+Group by Category
+order by Sales desc;
+```
+
+**Interpretation:**
+Technology is the top revenue driver.
+
+---
+
+**2. Sub-Category Profitability**
+
+```sql
+Select Sub_Category, sum(Profit)/sum(Sales) as ProfitMargin, sum(Sales) as Sales
+From superstoresales
+Group by Sub_Category
+Order by ProfitMargin asc, Sales desc;
+```
+
+**Intrepretation:**
+Tables and Bookcases reduce profit, while Chairs are strong.
+
+
+
+**3. Regional Profitability**
+
+```sql
+select Region, sum(Profit) as Profit,
+       sum(Profit) * 100/(select sum(Sales) from superstoresales) as Contribution
+from superstoresales
+group by Region
+order by Profit desc;
+```
+
+**Interpretation:**
+South is unprofitable; West/East dominate.
+
+---
+
+**4. Top Customers**
+
+```sql
+select CustomerId,
+       round(sum(Sales) * 100/(select sum(Sales) from superstoresales),2) as SalesContribution,
+       round(sum(Profit) * 100/(select sum(Profit) from superstoresales),2) as ProfitContribution
+from superstoresales
+group by CustomerId
+order by (SalesContribution + ProfitContribution) desc;
+```
+
+**Interpretation:**
+Few customers generate large contributions.
+
+---
+
+**5. Product Bundling**
+
+```sql
+select a.ProductId, b.ProductId, count(*) as CombinationCount
+from superstoresales a
+join superstoresales b on a.OrderID = b.OrderID and a.ProductID > b.ProductID 
+group by a.ProductId, b.ProductID
+having count(*) > 1
+order by count(*) desc;
+```
+
+**Interpretation:**
+Chairs + Tables, Phones + Paper are natural bundles.
+
+---
+
 
 ## Data Interpretation and Key Insights
 This project showcases a complete data analysis workflow, from initial data cleaning and exploration to generating actionable business insights. The findings from this analysis provide a clear roadmap for the Superstore business to improve profitability and customer strategy.
@@ -88,3 +164,8 @@ This project showcases a complete data analysis workflow, from initial data clea
 - **Optimize Shipping:** Investigate and address the high shipping costs in the South region.
 - **Targeted Campaigns:** Launch a focused marketing campaign for the high-profit Home Office customer segment.
 - **Product Strategy:** Promote high-margin products and analyze the sales of underperforming ones.
+- **Category Sales:** Technology leads revenue
+- **Sub-Categories:** Tables & Bookcases reduce profitability
+- **Regional Trends:** South is unprofitable
+- **Customer Analysis:** Few customers contribute big
+- **Product Bundles:** Bundling opportunities exist
